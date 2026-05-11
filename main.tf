@@ -33,6 +33,21 @@ data "aws_iam_policy_document" "hcp_infragraph_oidc_assume_role_policy" {
       type        = "Federated"
       identifiers = [aws_iam_openid_connect_provider.hcp_infragraph.arn]
     }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${local.oidc_condition_host}:aud"
+      values   = ["graph.connector.aws"]
+    }
+
+    dynamic "condition" {
+      for_each = var.hcp_infragraph_subject == "" ? [] : [1]
+      content {
+        test     = "StringLike"
+        variable = "${local.oidc_condition_host}:sub"
+        values   = [var.hcp_infragraph_subject]
+      }
+    }
   }
 }
 

@@ -21,3 +21,16 @@ variable "aws_iam_role_name" {
     error_message = "aws_iam_role_name must be 1-64 characters and use only letters, numbers, and the IAM-supported characters +=,.@_-"
   }
 }
+
+variable "hcp_infragraph_subject" {
+  type        = string
+  description = <<-EOT
+    Optional. OIDC `sub` claim value (or StringLike pattern with `*`) that the
+    assumed token must match. Pinning this to the HCP Infragraph connector
+    workload identity for your HCP organization defends against confused-deputy
+    scenarios where another workload sharing the same OIDC issuer could assume
+    this role. Obtain the exact value from HCP Infragraph documentation.
+    Leave empty to skip the `sub` condition (not recommended for production).
+  EOT
+  default     = ""
+}
