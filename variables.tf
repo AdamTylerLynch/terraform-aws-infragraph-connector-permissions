@@ -25,12 +25,13 @@ variable "aws_iam_role_name" {
 variable "hcp_infragraph_subject" {
   type        = string
   description = <<-EOT
-    Optional. OIDC `sub` claim value (or StringLike pattern with `*`) that the
-    assumed token must match. Pinning this to the HCP Infragraph connector
-    workload identity for your HCP organization defends against confused-deputy
-    scenarios where another workload sharing the same OIDC issuer could assume
-    this role. Obtain the exact value from HCP Infragraph documentation.
-    Leave empty to skip the `sub` condition (not recommended for production).
+    Optional. Exact OIDC `sub` claim value the assumed token must match,
+    enforced with StringEquals. Pinning this to the HCP Infragraph connector
+    workload identity isolates this role from any other workload that shares
+    the same OIDC issuer and audience within your HCP organization. Obtain the
+    exact value from HCP Infragraph documentation. Leave empty to skip the
+    `sub` condition (not recommended for production).
   EOT
   default     = ""
+  nullable    = false
 }

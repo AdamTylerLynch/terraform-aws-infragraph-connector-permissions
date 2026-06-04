@@ -36,15 +36,15 @@ data "aws_iam_policy_document" "hcp_infragraph_oidc_assume_role_policy" {
 
     condition {
       test     = "StringEquals"
-      variable = "${local.oidc_condition_host}:aud"
+      variable = "${local.oidc_condition_prefix}:aud"
       values   = ["graph.connector.aws"]
     }
 
     dynamic "condition" {
       for_each = var.hcp_infragraph_subject == "" ? [] : [1]
       content {
-        test     = "StringLike"
-        variable = "${local.oidc_condition_host}:sub"
+        test     = "StringEquals"
+        variable = "${local.oidc_condition_prefix}:sub"
         values   = [var.hcp_infragraph_subject]
       }
     }
