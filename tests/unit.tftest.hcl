@@ -79,11 +79,6 @@ run "default_configuration" {
   }
 
   assert {
-    condition     = aws_iam_policy.hcp_infragraph_assumerole_policy.name == "hcp_infragraph-assume-role-policy"
-    error_message = "assume-role policy name should trim the trailing -role suffix"
-  }
-
-  assert {
     condition     = aws_iam_openid_connect_provider.hcp_infragraph.url == var.oidc_provider_url
     error_message = "OIDC provider URL should come from the module input"
   }
@@ -101,16 +96,6 @@ run "default_configuration" {
   assert {
     condition     = sort(tolist(jsondecode(data.aws_iam_policy_document.hcp_infragraph_resource_access_policy.json).Statement[0].Action)) == sort(tolist(jsondecode(file("${path.root}/tests/fixtures/enabled_actions.json"))))
     error_message = "resource access policy actions changed unexpectedly"
-  }
-
-  assert {
-    condition     = jsondecode(data.aws_iam_policy_document.hcp_infragraph_assumerole_policy.json).Statement[0].Action == "sts:AssumeRoleWithWebIdentity"
-    error_message = "assume-role helper policy should grant sts:AssumeRoleWithWebIdentity"
-  }
-
-  assert {
-    condition     = jsondecode(data.aws_iam_policy_document.hcp_infragraph_assumerole_policy.json).Statement[0].Resource == "*"
-    error_message = "assume-role helper policy should target all resources"
   }
 }
 
@@ -131,16 +116,7 @@ run "omits_subject_condition_by_default" {
     }
   }
   override_resource {
-    target = aws_iam_policy.hcp_infragraph_assumerole_policy
-    values = {
-      arn = "arn:aws:iam::123456789012:policy/hcp_infragraph-assume-role-policy"
-    }
-  }
-  override_resource {
     target = aws_iam_role_policy_attachment.hcp_infragraph_access_resources_policy_attachment
-  }
-  override_resource {
-    target = aws_iam_role_policy_attachment.hcp_infragraph_assume_policy_attachment
   }
 
   assert {
@@ -172,16 +148,7 @@ run "pins_subject_when_provided" {
     }
   }
   override_resource {
-    target = aws_iam_policy.hcp_infragraph_assumerole_policy
-    values = {
-      arn = "arn:aws:iam::123456789012:policy/hcp_infragraph-assume-role-policy"
-    }
-  }
-  override_resource {
     target = aws_iam_role_policy_attachment.hcp_infragraph_access_resources_policy_attachment
-  }
-  override_resource {
-    target = aws_iam_role_policy_attachment.hcp_infragraph_assume_policy_attachment
   }
 
   assert {
@@ -212,11 +179,6 @@ run "custom_role_name_with_suffix" {
     condition     = aws_iam_policy.hcp_infragraph_resource_access_policy.name == "my-team-infragraph-resource-policy"
     error_message = "resource policy name should trim the custom trailing -role suffix"
   }
-
-  assert {
-    condition     = aws_iam_policy.hcp_infragraph_assumerole_policy.name == "my-team-infragraph-assume-role-policy"
-    error_message = "assume-role policy name should trim the custom trailing -role suffix"
-  }
 }
 
 run "custom_role_name_without_suffix" {
@@ -235,10 +197,5 @@ run "custom_role_name_without_suffix" {
   assert {
     condition     = aws_iam_policy.hcp_infragraph_resource_access_policy.name == "my-team-infragraph-resource-policy"
     error_message = "resource policy name should preserve custom names without -role"
-  }
-
-  assert {
-    condition     = aws_iam_policy.hcp_infragraph_assumerole_policy.name == "my-team-infragraph-assume-role-policy"
-    error_message = "assume-role policy name should preserve custom names without -role"
   }
 }
